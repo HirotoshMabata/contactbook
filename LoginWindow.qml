@@ -6,6 +6,8 @@ ApplicationWindow {
     property string clientId: "1f337b630dd94813a539a4052805e1a9"
     property string callbackUrl: "https://localhost:6846/auth.callback"
 
+    width: 800
+    height: 600
     onClosing: destroy()
 
     WebEngineView {
