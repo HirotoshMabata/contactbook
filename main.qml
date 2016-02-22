@@ -1,13 +1,20 @@
 import QtQuick 2.5
-import QtQuick.Window 2.2
+import QtQuick.Controls 1.4
+import QtWebEngine 1.0
 
-Window {
-    visible: true
+QtObject {
+    id: root
 
-    MainForm {
-        anchors.fill: parent
-        mouseArea.onClicked: {
-            Qt.quit();
+    property var mainWindow: ApplicationWindow {
+        visible: true
+
+        MainForm {
+            applicationRoot: root
+            anchors.fill: parent
         }
+    }
+
+    property Component loginWindowComponent: LoginWindow {
+        visible: true
     }
 }

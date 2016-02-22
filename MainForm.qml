@@ -1,18 +1,28 @@
 import QtQuick 2.5
+import QtQuick.Controls 1.4
+import QtWebEngine 1.0
 
 Rectangle {
-    property alias mouseArea: mouseArea
+    id: rectangle1
+    property QtObject applicationRoot
 
-    width: 360
-    height: 360
+    Row {
+        id: row1
+        height: 59
+        anchors.top: parent.top
+        anchors.topMargin: 8
+        anchors.right: parent.right
+        anchors.rightMargin: 8
+        anchors.left: parent.left
+        anchors.leftMargin: 8
 
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-    }
-
-    Text {
-        anchors.centerIn: parent
-        text: "Hello World"
+        Button {
+            id: button1
+            width: 48
+            height: 23
+            text: qsTr("Login")
+            anchors.verticalCenter: parent.verticalCenter
+            onClicked: loginWindowComponent.createObject(applicationRoot)
+        }
     }
 }
