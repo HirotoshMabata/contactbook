@@ -13,12 +13,13 @@ namespace {
         return reply;
     }
 
-    void parseQuery(QByteArray &query) {
+    QString parseQuery(QByteArray &query) {
         QString firstLine = QString(query).split("\r\n").first();
         firstLine.remove("GET ");
         firstLine.remove("HTTP/1.1");
         firstLine.remove("\r\n");
-        firstLine.prepend("http://localhost");
+        firstLine.remove("auth.callback?code=");    // TODO: parse using redirect_uri
+        return firstLine;
     }
 }
 
@@ -48,5 +49,5 @@ void OAuth2ReplyServer::onReadyRead() {
     QByteArray query = socket->readAll();
     socket->disconnectFromHost();
     close();
-    emit verificationCodeReceived(QString(query));
+    emit verificationCodeReceived(parseQuery(query));
 }
