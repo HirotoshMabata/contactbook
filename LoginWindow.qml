@@ -17,21 +17,18 @@ ApplicationWindow {
         anchors.fill: parent
         anchors.bottomMargin: 300
         url: "https://login.eveonline.com/oauth/authorize/"
-              + "?response_type=code"
+              + "?response_type=token"
               + "&redirect_uri=" + redirectUri
               + "&client_id=" + clientId
               + "&scope=characterContactsRead"
     }
 
-    Text {
-        id: messageBox
-        anchors.topMargin: 300
-        anchors.fill: parent
-    }
-
     OAuth2ReplyServer {
         id: server
         port: 6846
-        onVerificationCodeReceived: messageBox.text = code
+    }
+
+    OAuth2AccessTokenClient {
+        id: accessTokenClient
     }
 }

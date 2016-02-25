@@ -4,11 +4,22 @@
 
 namespace {
     QByteArray prepareReply() {
-        QByteArray replyContent = "<html></html>";
+        QByteArray replyContent =
+                "<!DOCTYPE html>"
+                "<html>"
+                "<body>"
+                "DONE."
+                "<script>"
+                "if (window.location.hash.length > 0) {"
+                "  window.location = window.location.origin.concat('/auth.callback?', window.location.hash.substr(1))"
+                "}"
+                "</script>"
+                "</body>"
+                "</html>";
         QByteArray reply;
-        reply.append("HTTP/1.0 200 OK \r\n");
+        reply.append("HTTP/1.1 200 OK \r\n");
         reply.append("Content-Type: text/html; charset=\"utf-8\"\r\n");
-        reply.append(QString("Content-Length: %1\r\n").arg(replyContent.size()));
+        reply.append(QString("Content-Length: %1\r\n\r\n").arg(replyContent.size()));
         reply.append(replyContent);
         return reply;
     }
@@ -16,9 +27,11 @@ namespace {
     QString parseQuery(QByteArray &query) {
         QString firstLine = QString(query).split("\r\n").first();
         firstLine.remove("GET ");
-        firstLine.remove("HTTP/1.1");
+        firstLine.remove(" HTTP/1.1");
         firstLine.remove("\r\n");
-        firstLine.remove("auth.callback?code=");    // TODO: parse using redirect_uri
+        firstLine.remove("/auth.callback?access_token=");       // TODO: parse using redirect_uri
+        firstLine.remove("&token_type=Bearer&expires_in=1200"); // TODO: parse argument-wise
+
         return firstLine;
     }
 }
@@ -48,6 +61,8 @@ void OAuth2ReplyServer::onReadyRead() {
     socket->write(prepareReply());
     QByteArray query = socket->readAll();
     socket->disconnectFromHost();
-    close();
-    emit verificationCodeReceived(parseQuery(query));
+    if (query.contains("access_token")) {
+        close();
+        emit accessCodeReceived(parseQuery(query));
+    }
 }

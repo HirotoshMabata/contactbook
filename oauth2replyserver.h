@@ -15,7 +15,7 @@ public:
     void setPort(int inPort);
 
 signals:
-    void verificationCodeReceived(QString code);
+    void accessCodeReceived(QString code);
 
 public slots:
     void onNewConnection();
