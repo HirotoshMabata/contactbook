@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
+import QtQuick.Dialogs 1.2
 import com.hirotosh.crest 1.0
 
 Rectangle {
@@ -15,7 +16,13 @@ Rectangle {
     signal login (string code)
     onLogin: {
         var client = crestClientComponent.createObject(root)
+        //client.accessCode = code
         var characterName = client.getCharacterName(code)
+        if (characterName === "") {
+            loginFailedMessage.open()
+            return
+        }
+
         var index = characterNames.indexOf(characterName)
         if (index < 0) {
             // append new character
@@ -26,6 +33,12 @@ Rectangle {
             // refresh client
             clients[index] = client
         }
+    }
+
+    MessageDialog {
+        id: loginFailedMessage
+        title: "Failed to login"
+        text: "Failed to login EVE server. Please retry later."
     }
 
     Text {
