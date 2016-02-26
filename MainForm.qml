@@ -9,35 +9,49 @@ Rectangle {
     property string accessCode
     property Component crestClientComponent: CRESTClient {}
 
-    // sync characterNames, client, characterList by index
-    property var clients: []
-    property var characterNames: []
+    // ListMode does not support Component for element's property. sync characters and characterList by index.
+    property var characters: []
     property var pendingClient
 
     function onLogin(code) {
         var client = crestClientComponent.createObject(root)
         client.accessCode = code
-        client.requestCharacterName(code)
+        client.requestCharacterInfo()
         pendingClient = client
-        client.characterNameReceived.connect(onCharacterNameReceived)
+        client.characterInfoReceived.connect(onCharacterInfoReceived)
     }
 
-    function onCharacterNameReceived(characterName) {
+    function findIndexOf(array, predicate) {
+        for (var i = 0; i < array.length; i++) {
+            if (predicate(array[i])) {
+                return i
+            }
+        }
+        return -1
+    }
+
+    function onCharacterInfoReceived(characterName, characterID) {
         if (characterName === "") {
             loginFailedMessage.open()
             return
         }
 
-        var index = characterNames.indexOf(characterName)
+        var index = findIndexOf(characters, function(element) {
+            return element["name"] === characterName
+        })
         if (index < 0) {
             // append new character
-            characterNames.push(characterName)
-            clients.push(pendingClient)
+            characters.push({
+                               "name": characterName,
+                               "client": pendingClient
+                           })
             characterList.append({"name": characterName})
         } else {
             // refresh client
-            clients[index] = pendingClient
+            characters[index]["client"] = pendingClient
         }
+
+        pendingClient.requestEndpoints(characterID)
     }
 
     MessageDialog {
