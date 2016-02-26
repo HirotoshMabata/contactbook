@@ -4,7 +4,8 @@ QT += qml quick webengine network
 CONFIG += c++11
 
 SOURCES += main.cpp \
-    oauth2replyserver.cpp
+    oauth2replyserver.cpp \
+    crestclient.cpp
 
 RESOURCES += qml.qrc
 
@@ -15,4 +16,5 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 HEADERS += \
-    oauth2replyserver.h
+    oauth2replyserver.h \
+    crestclient.h

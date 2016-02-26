@@ -19,6 +19,6 @@ QtObject {
     property Component loginWindowComponent: LoginWindow {
         id: loginWindow
         visible: true
-        onAccessCodeReceived: mainForm.accessCode = code
+        onAccessCodeReceived: mainForm.login(code)
     }
 }
