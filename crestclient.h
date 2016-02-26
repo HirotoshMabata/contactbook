@@ -15,9 +15,12 @@ public:
     void setAccessCode(QByteArray accessCode) { accessCode_ = accessCode; }
 
 signals:
+    void characterNameReceived(QString characterName);
 
 public slots:
-    QString getCharacterName();
+    // return "" if failed to get character name
+    void requestCharacterName();
+    void onCharacterNameReply(QNetworkReply *reply);
 
 private:
     QNetworkAccessManager manager_;

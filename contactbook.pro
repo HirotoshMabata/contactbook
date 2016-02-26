@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += qml quick webengine network
+QT += core qml quick webengine network
 CONFIG += c++11
 
 SOURCES += main.cpp \

@@ -12,12 +12,17 @@ Rectangle {
     // sync characterNames, client, characterList by index
     property var clients: []
     property var characterNames: []
+    property var pendingClient
 
-    signal login (string code)
-    onLogin: {
+    function onLogin(code) {
         var client = crestClientComponent.createObject(root)
-        //client.accessCode = code
-        var characterName = client.getCharacterName(code)
+        client.accessCode = code
+        client.requestCharacterName(code)
+        pendingClient = client
+        client.characterNameReceived.connect(onCharacterNameReceived)
+    }
+
+    function onCharacterNameReceived(characterName) {
         if (characterName === "") {
             loginFailedMessage.open()
             return
@@ -27,11 +32,11 @@ Rectangle {
         if (index < 0) {
             // append new character
             characterNames.push(characterName)
-            clients.push(client)
+            clients.push(pendingClient)
             characterList.append({"name": characterName})
         } else {
             // refresh client
-            clients[index] = client
+            clients[index] = pendingClient
         }
     }
 
