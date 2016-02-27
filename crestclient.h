@@ -16,12 +16,16 @@ public:
 
 signals:
     void characterInfoReceived(QString characterName, int characterID);
+    void contactListReceived(QVariantList contacts);
 
 public slots:
     // return "" if failed to get character name
     void requestCharacterInfo();
+    void requestContactList(int characterID);
 
     void onCharacterInfoReply(QNetworkReply *reply);
+    void onContactListReply(QNetworkReply *reply);
+
     void requestEndpoints(int characterID);
     void onEndpointsReply(QNetworkReply *reply);
 

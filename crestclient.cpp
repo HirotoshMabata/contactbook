@@ -3,6 +3,8 @@
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
+#include <QVariantMap>
 
 CRESTClient::CRESTClient(QObject *parent) : QObject(parent)
 {
@@ -29,6 +31,33 @@ void CRESTClient::onCharacterInfoReply(QNetworkReply *reply)
                 replyObject["CharacterID"].toInt()
             );
     disconnect(&manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(onCharacterInfoReply(QNetworkReply*)));
+}
+
+void CRESTClient::requestContactList(int characterID)
+{
+    QNetworkRequest request(QUrl(QString("https://crest-tq.eveonline.com/characters/%1/contacts/").arg(characterID)));
+    request.setRawHeader(
+                "Authorization",
+                QString("Bearer %1").arg(QString(accessCode_)).toUtf8()
+                );
+    manager_.get(request);
+    connect(&manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(onContactListReply(QNetworkReply*)));
+}
+
+void CRESTClient::onContactListReply(QNetworkReply *reply)
+{
+    auto replyJsonDoc = QJsonDocument::fromJson(reply->readAll());
+    auto replyObject = replyJsonDoc.object();
+    auto contacts = replyObject["items"].toArray();
+
+    QVariantList list;
+    for (auto it = contacts.begin(); it != contacts.end(); it++) {
+        QVariantMap map;
+        map.insert("name", (*it).toObject()["character"].toObject()["name"].toString());
+        map.insert("portrait", (*it).toObject()["character"].toObject()["portrait"].toObject()["256x256"].toObject()["href"].toString());
+        list.append(map);
+    }
+    emit contactListReceived(list);
 }
 
 void CRESTClient::requestEndpoints(int characterID)

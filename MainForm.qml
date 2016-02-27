@@ -51,28 +51,25 @@ Rectangle {
             characters[index]["client"] = pendingClient
         }
 
-        pendingClient.requestEndpoints(characterID)
+        pendingClient.requestContactList(characterID)
+        pendingClient.contactListReceived.connect(onContactListReceived)
+    }
+
+    function onContactListReceived(contacts) {
+        contactList.clear()
+        for (var i = 0; i < contacts.length; i++) {
+            contactList.append(
+                        {
+                            "name": contacts[i]["name"],
+                            "portrait": contacts[i]["portrait"]
+                        })
+        }
     }
 
     MessageDialog {
         id: loginFailedMessage
         title: "Failed to login"
         text: "Failed to login EVE server. Please retry later."
-    }
-
-    Text {
-        id: accessCodeViewer
-        x: 16
-        text: accessCode
-        anchors.top: characterListView.bottom
-        anchors.topMargin: 8
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-        anchors.left: parent.left
-        anchors.leftMargin: 8
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 8
-        font.pixelSize: 12
     }
 
     Button {
@@ -109,6 +106,42 @@ Rectangle {
             Row {
                 id: row2
                 spacing: 10
+
+                Text {
+                    text: name
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.bold: true
+                }
+            }
+        }
+    }
+
+    ListView {
+        id: contactListView
+        anchors.right: parent.right
+        anchors.rightMargin: 8
+        anchors.left: parent.left
+        anchors.leftMargin: 8
+        anchors.top: characterListView.bottom
+        anchors.topMargin: 8
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 8
+        model: ListModel {
+            id: contactList
+        }
+        delegate: Item {
+            x: 5
+            width: 80
+            height: 40
+            Row {
+                id: row1
+                spacing: 10
+
+                Image {
+                    width: 32
+                    height: 32
+                    source: portrait
+                }
 
                 Text {
                     text: name
