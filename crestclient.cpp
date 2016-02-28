@@ -33,6 +33,28 @@ void CRESTClient::onCharacterInfoReply(QNetworkReply *reply)
     disconnect(&manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(onCharacterInfoReply(QNetworkReply*)));
 }
 
+void CRESTClient::requestCharacterPortrait(int characterID)
+{
+    QNetworkRequest request(QUrl(QString("https://crest-tq.eveonline.com/characters/%1/").arg(characterID)));
+    request.setRawHeader(
+                "Authorization",
+                QString("Bearer %1").arg(QString(accessCode_)).toUtf8()
+                );
+    manager_.get(request);
+    connect(&manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(onCharacterPortraitReply(QNetworkReply*)));
+}
+
+void CRESTClient::onCharacterPortraitReply(QNetworkReply *reply)
+{
+    auto replyJsonDoc = QJsonDocument::fromJson(reply->readAll());
+    auto replyObject = replyJsonDoc.object();
+    emit characterPortraitReceived(
+                replyObject["id_str"].toString().toInt(),
+                replyObject["portrait"].toObject()["256x256"].toObject()["href"].toString()
+            );
+    disconnect(&manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(onCharacterPortraitReply(QNetworkReply*)));
+}
+
 void CRESTClient::requestContactList(int characterID)
 {
     QNetworkRequest request(QUrl(QString("https://crest-tq.eveonline.com/characters/%1/contacts/").arg(characterID)));

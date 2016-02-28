@@ -43,16 +43,33 @@ Rectangle {
             // append new character
             characters.push({
                                "name": characterName,
+                               "id": characterID,
+                               "portrait": "",   // fill it when portrait received
                                "client": pendingClient
                            })
-            characterList.append({"name": characterName})
+            characterList.append(
+                        {
+                            "name": characterName,
+                            "portrait": "",   // fill it when portrait received
+                        })
         } else {
             // refresh client
             characters[index]["client"] = pendingClient
         }
 
+        pendingClient.requestCharacterPortrait(characterID)
+        pendingClient.characterPortraitReceived.connect(onCharacterPortraitReceived)
+
         pendingClient.requestContactList(characterID)
         pendingClient.contactListReceived.connect(onContactListReceived)
+    }
+
+    function onCharacterPortraitReceived(characterID, portrait) {
+        var index = findIndexOf(characters, function(element) {
+            return element["id"] === characterID
+        })
+        characters[index]["portrait"] = portrait
+        characterList.setProperty(index, "portrait", portrait)
     }
 
     function onContactListReceived(contacts) {
@@ -103,13 +120,19 @@ Rectangle {
             x: 5
             width: 80
             height: 40
-            Row {
-                id: row2
+            Column {
                 spacing: 10
+
+                Image {
+                    width: 32
+                    height: 32
+                    source: portrait
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
 
                 Text {
                     text: name
-                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
                     font.bold: true
                 }
             }

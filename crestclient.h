@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QNetworkAccessManager>
+#include <QUrl>
 
 class CRESTClient : public QObject
 {
@@ -16,15 +17,18 @@ public:
 
 signals:
     void characterInfoReceived(QString characterName, int characterID);
+    void characterPortraitReceived(int characterID, QString portraitUrl);
     void contactListReceived(QVariantList contacts);
 
 public slots:
     // return "" if failed to get character name
     void requestCharacterInfo();
     void requestContactList(int characterID);
+    void requestCharacterPortrait(int characterID);
 
     void onCharacterInfoReply(QNetworkReply *reply);
     void onContactListReply(QNetworkReply *reply);
+    void onCharacterPortraitReply(QNetworkReply *reply);
 
     void requestEndpoints(int characterID);
     void onEndpointsReply(QNetworkReply *reply);
