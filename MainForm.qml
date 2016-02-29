@@ -163,7 +163,7 @@ Rectangle {
             }
             MouseArea {
                 anchors.fill: parent
-                onClicked: switchView(id)
+                onClicked: switchView(characterID)
             }
         }
     }
@@ -188,7 +188,7 @@ Rectangle {
         }
     }
 
-    ListView {
+    TableView {
         id: contactListView
         anchors.right: parent.right
         anchors.rightMargin: 8
@@ -198,29 +198,56 @@ Rectangle {
         anchors.topMargin: 8
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 8
+
+        TableViewColumn {
+            id: portraitColumn
+            role: "portrait"
+            title: ""
+            width: 32
+            movable: false
+            resizable: false
+            delegate: Image {
+                source: styleData.value
+            }
+        }
+
+        TableViewColumn {
+            id: nameColumn
+            role: "name"
+            title: "Character Name"
+        }
+
         model: ListModel {
             id: contactList
+            ListElement {
+                portrait: "image/74_64_13.png"
+                name: "Aura"
+            }
+            ListElement {
+                portrait: "image/74_64_13.png"
+                name: "Aura"
+            }
+            ListElement {
+                portrait: "image/74_64_13.png"
+                name: "Aura"
+            }
+            ListElement {
+                portrait: "image/74_64_13.png"
+                name: "Aura"
+            }
         }
-        delegate: Item {
-            x: 5
-            width: 80
-            height: 40
-            Row {
-                id: row1
-                spacing: 10
 
-                Image {
-                    width: 32
-                    height: 32
-                    source: portrait
-                }
-
-                Text {
-                    text: name
-                    anchors.verticalCenter: parent.verticalCenter
+        rowDelegate: Rectangle {
+            height: 32
+            color: {
+                if (styleData.selected) {
+                    return "lightblue"
+                } else if (styleData.alternate) {
+                    return "azure"
+                } else {
+                    return "white"
                 }
             }
         }
     }
-
 }
