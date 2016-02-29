@@ -200,6 +200,24 @@ Rectangle {
         anchors.bottomMargin: 8
 
         TableViewColumn {
+            id: shareColumn
+            role: "share"
+            title: "Share"
+            width: 42
+            movable: false
+            resizable: false
+            delegate: Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+                CheckBox {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    checked: styleData.value
+                }
+            }
+        }
+
+        TableViewColumn {
             id: portraitColumn
             role: "portrait"
             title: ""
@@ -222,18 +240,22 @@ Rectangle {
             ListElement {
                 portrait: "image/74_64_13.png"
                 name: "Aura"
+                share: false
             }
             ListElement {
                 portrait: "image/74_64_13.png"
                 name: "Aura"
+                share: false
             }
             ListElement {
                 portrait: "image/74_64_13.png"
                 name: "Aura"
+                share: false
             }
             ListElement {
                 portrait: "image/74_64_13.png"
                 name: "Aura"
+                share: true
             }
         }
 
