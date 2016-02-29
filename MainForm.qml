@@ -13,6 +13,8 @@ Rectangle {
     property var characters: []
     property var pendingClient
 
+    property var contactDatabase: []
+
     function onLogin(code) {
         var client = crestClientComponent.createObject(root)
         client.accessCode = code
@@ -50,6 +52,7 @@ Rectangle {
             characterList.append(
                         {
                             "name": characterName,
+                            "id": characterID,
                             "portrait": "",   // fill it when portrait received
                         })
         } else {
@@ -72,7 +75,37 @@ Rectangle {
         characterList.setProperty(index, "portrait", portrait)
     }
 
-    function onContactListReceived(contacts) {
+    function onContactListReceived(characterID, contacts) {
+        var tableIndex = findIndexOf(contactDatabase, function(element) {
+            return element["characterID"] === characterID
+        })
+        if (tableIndex < 0) {
+            // create new table
+            contactDatabase.push(
+                        {
+                            "characterID": characterID,
+                            "contacts": contacts
+                        })
+        } else {
+            // refresh existing table
+            contactDatabase[tableIndex]["contacts"] = contacts
+        }
+        syncContactList(contacts)
+    }
+
+    function switchView(characterID) {
+        var tableIndex = findIndexOf(contactDatabase, function(element) {
+            return element["characterID"] === characterID
+        })
+        if (tableIndex < 0) {
+            return
+        }
+
+        syncContactList(contactDatabase[tableIndex]["contacts"])
+    }
+
+    // sync contact list UI
+    function syncContactList(contacts) {
         contactList.clear()
         for (var i = 0; i < contacts.length; i++) {
             contactList.append(
@@ -135,6 +168,11 @@ Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.bold: true
                 }
+
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: switchView(id)
             }
         }
     }

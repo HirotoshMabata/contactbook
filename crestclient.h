@@ -18,7 +18,7 @@ public:
 signals:
     void characterInfoReceived(QString characterName, int characterID);
     void characterPortraitReceived(int characterID, QString portraitUrl);
-    void contactListReceived(QVariantList contacts);
+    void contactListReceived(int characterID, QVariantList contacts);
 
 public slots:
     // return "" if failed to get character name
@@ -36,6 +36,7 @@ public slots:
 private:
     QNetworkAccessManager manager_;
     QByteArray accessCode_;
+    int characterID_;
 };
 
 #endif // CRESTCLIENT_H

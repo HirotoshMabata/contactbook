@@ -30,6 +30,7 @@ void CRESTClient::onCharacterInfoReply(QNetworkReply *reply)
                 replyObject["CharacterName"].toString(),
                 replyObject["CharacterID"].toInt()
             );
+    characterID_ = replyObject["CharacterID"].toInt();
     disconnect(&manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(onCharacterInfoReply(QNetworkReply*)));
 }
 
@@ -79,7 +80,10 @@ void CRESTClient::onContactListReply(QNetworkReply *reply)
         map.insert("portrait", (*it).toObject()["character"].toObject()["portrait"].toObject()["256x256"].toObject()["href"].toString());
         list.append(map);
     }
-    emit contactListReceived(list);
+    if (characterID_ == 0) {
+        qDebug("Call requestCharacterInfo first.");
+    }
+    emit contactListReceived(characterID_, list);
 }
 
 void CRESTClient::requestEndpoints(int characterID)
