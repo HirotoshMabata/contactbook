@@ -3,5 +3,6 @@
         <file>main.qml</file>
         <file>LoginWindow.qml</file>
         <file>MainForm.qml</file>
+        <file>image/74_64_13.png</file>
     </qresource>
 </RCC>

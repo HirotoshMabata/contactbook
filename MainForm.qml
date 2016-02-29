@@ -10,10 +10,10 @@ Rectangle {
     property Component crestClientComponent: CRESTClient {}
 
     // ListMode does not support Component for element's property. sync characters and characterList by index.
-    property var characters: []
+    property var characters: [{"name": "SHARE", "characterID": "SHARE", "portrait": "", "client": ""}]
     property var pendingClient
 
-    property var contactDatabase: []
+    property var contactDatabase: [{"characterID": "SHARE", "contacts": []}]
 
     function onLogin(code) {
         var client = crestClientComponent.createObject(root)
@@ -44,15 +44,15 @@ Rectangle {
         if (index < 0) {
             // append new character
             characters.push({
-                               "name": characterName,
-                               "id": characterID,
-                               "portrait": "",   // fill it when portrait received
-                               "client": pendingClient
-                           })
+                                "name": characterName,
+                                "characterID": characterID,
+                                "portrait": "",   // fill it when portrait received
+                                "client": pendingClient
+                            })
             characterList.append(
                         {
                             "name": characterName,
-                            "id": characterID,
+                            "characterID": characterID,
                             "portrait": "",   // fill it when portrait received
                         })
         } else {
@@ -69,7 +69,7 @@ Rectangle {
 
     function onCharacterPortraitReceived(characterID, portrait) {
         var index = findIndexOf(characters, function(element) {
-            return element["id"] === characterID
+            return element["characterID"] === characterID
         })
         characters[index]["portrait"] = portrait
         characterList.setProperty(index, "portrait", portrait)
@@ -122,23 +122,10 @@ Rectangle {
         text: "Failed to login EVE server. Please retry later."
     }
 
-    Button {
-        id: loginButton
-        x: 584
-        width: 48
-        height: 80
-        text: qsTr("Login")
-        anchors.top: parent.top
-        anchors.topMargin: 8
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-        onClicked: loginWindowComponent.createObject(applicationRoot)
-    }
-
     ListView {
         id: characterListView
         height: 80
-        anchors.right: loginButton.left
+        anchors.right: buttons.left
         anchors.rightMargin: 8
         anchors.left: parent.left
         anchors.leftMargin: 8
@@ -148,17 +135,22 @@ Rectangle {
         orientation: ListView.Horizontal
         model: ListModel {
             id: characterList
+            ListElement {
+                name: "SHARE"
+                characterID: "SHARE"
+                portrait: "image/74_64_13.png"
+            }
         }
         delegate: Item {
             x: 5
             width: 80
             height: 40
             Column {
-                spacing: 10
+                spacing: 8
 
                 Image {
-                    width: 32
-                    height: 32
+                    width: 64
+                    height: 64
                     source: portrait
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
@@ -166,7 +158,6 @@ Rectangle {
                 Text {
                     text: name
                     anchors.horizontalCenter: parent.horizontalCenter
-                    font.bold: true
                 }
 
             }
@@ -174,6 +165,26 @@ Rectangle {
                 anchors.fill: parent
                 onClicked: switchView(id)
             }
+        }
+    }
+
+    Column {
+        id: buttons
+        x: 584
+        width: 48
+        height: 80
+        spacing: 4
+        anchors.right: parent.right
+        anchors.rightMargin: 8
+        anchors.top: parent.top
+        anchors.topMargin: 8
+
+        Button {
+            width: 48
+            height: 80
+            id: loginButton
+            text: qsTr("Login")
+            onClicked: loginWindowComponent.createObject(applicationRoot)
         }
     }
 
@@ -207,9 +218,9 @@ Rectangle {
                 Text {
                     text: name
                     anchors.verticalCenter: parent.verticalCenter
-                    font.bold: true
                 }
             }
         }
     }
+
 }
