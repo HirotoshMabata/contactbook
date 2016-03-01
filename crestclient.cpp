@@ -26,15 +26,15 @@ void CRESTClient::onCharacterInfoReply(QNetworkReply *reply)
 {
     auto replyJsonDoc = QJsonDocument::fromJson(reply->readAll());
     auto replyObject = replyJsonDoc.object();
+    characterID_ = QString::number(replyObject["CharacterID"].toInt());
     emit characterInfoReceived(
                 replyObject["CharacterName"].toString(),
-                replyObject["CharacterID"].toInt()
+                characterID_
             );
-    characterID_ = replyObject["CharacterID"].toInt();
     disconnect(&manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(onCharacterInfoReply(QNetworkReply*)));
 }
 
-void CRESTClient::requestCharacterPortrait(int characterID)
+void CRESTClient::requestCharacterPortrait(QString characterID)
 {
     QNetworkRequest request(QUrl(QString("https://crest-tq.eveonline.com/characters/%1/").arg(characterID)));
     request.setRawHeader(
@@ -50,13 +50,13 @@ void CRESTClient::onCharacterPortraitReply(QNetworkReply *reply)
     auto replyJsonDoc = QJsonDocument::fromJson(reply->readAll());
     auto replyObject = replyJsonDoc.object();
     emit characterPortraitReceived(
-                replyObject["id_str"].toString().toInt(),
+                characterID_,
                 replyObject["portrait"].toObject()["256x256"].toObject()["href"].toString()
             );
     disconnect(&manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(onCharacterPortraitReply(QNetworkReply*)));
 }
 
-void CRESTClient::requestContactList(int characterID)
+void CRESTClient::requestContactList(QString characterID)
 {
     QNetworkRequest request(QUrl(QString("https://crest-tq.eveonline.com/characters/%1/contacts/").arg(characterID)));
     request.setRawHeader(
@@ -80,13 +80,13 @@ void CRESTClient::onContactListReply(QNetworkReply *reply)
         map.insert("portrait", (*it).toObject()["character"].toObject()["portrait"].toObject()["256x256"].toObject()["href"].toString());
         list.append(map);
     }
-    if (characterID_ == 0) {
+    if (characterID_ == "") {
         qDebug("Call requestCharacterInfo first.");
     }
     emit contactListReceived(characterID_, list);
 }
 
-void CRESTClient::requestEndpoints(int characterID)
+void CRESTClient::requestEndpoints(QString characterID)
 {
     QNetworkRequest request(QUrl(QString("https://crest-tq.eveonline.com/characters/%1/contacts/").arg(characterID)));
     request.setRawHeader(

@@ -16,27 +16,27 @@ public:
     void setAccessCode(QByteArray accessCode) { accessCode_ = accessCode; }
 
 signals:
-    void characterInfoReceived(QString characterName, int characterID);
-    void characterPortraitReceived(int characterID, QString portraitUrl);
-    void contactListReceived(int characterID, QVariantList contacts);
+    void characterInfoReceived(QString characterName, QString characterID);
+    void characterPortraitReceived(QString characterID, QString portraitUrl);
+    void contactListReceived(QString characterID, QVariantList contacts);
 
 public slots:
     // return "" if failed to get character name
     void requestCharacterInfo();
-    void requestContactList(int characterID);
-    void requestCharacterPortrait(int characterID);
+    void requestContactList(QString characterID);
+    void requestCharacterPortrait(QString characterID);
 
     void onCharacterInfoReply(QNetworkReply *reply);
     void onContactListReply(QNetworkReply *reply);
     void onCharacterPortraitReply(QNetworkReply *reply);
 
-    void requestEndpoints(int characterID);
+    void requestEndpoints(QString characterID);
     void onEndpointsReply(QNetworkReply *reply);
 
 private:
     QNetworkAccessManager manager_;
     QByteArray accessCode_;
-    int characterID_;
+    QString characterID_;
 };
 
 #endif // CRESTCLIENT_H
