@@ -27,11 +27,13 @@ public slots:
     void requestCharacterPortrait(QString characterID);
 
     void onCharacterInfoReply(QNetworkReply *reply);
-    void onContactListReply(QNetworkReply *reply);
+    void onContactListReply();
     void onCharacterPortraitReply(QNetworkReply *reply);
 
     void requestEndpoints(QString characterID);
     void onEndpointsReply(QNetworkReply *reply);
+
+    void uploadContacts(QVariantList contacts);
 
 private:
     QNetworkAccessManager manager_;

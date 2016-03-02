@@ -63,13 +63,13 @@ void CRESTClient::requestContactList(QString characterID)
                 "Authorization",
                 QString("Bearer %1").arg(QString(accessCode_)).toUtf8()
                 );
-    manager_.get(request);
-    connect(&manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(onContactListReply(QNetworkReply*)));
+    auto reply = manager_.get(request);
+    connect(reply, SIGNAL(readyRead()), this, SLOT(onContactListReply()));
 }
 
-void CRESTClient::onContactListReply(QNetworkReply *reply)
+void CRESTClient::onContactListReply()
 {
-    auto replyJsonDoc = QJsonDocument::fromJson(reply->readAll());
+    auto replyJsonDoc = QJsonDocument::fromJson(reinterpret_cast<QNetworkReply*>(sender())->readAll());
     auto replyObject = replyJsonDoc.object();
     auto contacts = replyObject["items"].toArray();
 
@@ -82,6 +82,7 @@ void CRESTClient::onContactListReply(QNetworkReply *reply)
         QVariantMap map;
         map.insert("name", (*it).toObject()["character"].toObject()["name"].toString());
         map.insert("portrait", (*it).toObject()["character"].toObject()["portrait"].toObject()["256x256"].toObject()["href"].toString());
+        map.insert("id_str", (*it).toObject()["character"].toObject()["id_str"].toString());
         map.insert("share", false);
         list.append(map);
     }
@@ -89,6 +90,31 @@ void CRESTClient::onContactListReply(QNetworkReply *reply)
         qDebug("Call requestCharacterInfo first.");
     }
     emit contactListReceived(characterID_, list);
+    disconnect(sender(), SIGNAL(readyRead()), this, SLOT(onContactListReply()));
+}
+
+void CRESTClient::uploadContacts(QVariantList contacts)
+{
+    for (auto contact : contacts) {
+        QVariantMap rootMap;
+        rootMap.insert("standing", 0);
+        rootMap.insert("contactType", "Character");
+        QVariantMap characterMap;
+        characterMap.insert("id_str", contact.toMap()["id_str"].toString());
+        characterMap.insert("id", contact.toMap()["id_str"].toString().toInt());
+        characterMap.insert("href", QString("https://crest-tq.eveonline.com/characters/%1/").arg(contact.toMap()["id_str"].toString()));
+        characterMap.insert("name", contact.toMap()["name"].toString());
+        rootMap.insert("contact", characterMap);
+
+        QNetworkRequest request(QUrl(QString("https://crest-tq.eveonline.com/characters/%1/contacts/").arg(characterID_)));
+        request.setRawHeader(
+                    "Authorization",
+                    QString("Bearer %1").arg(QString(accessCode_)).toUtf8()
+                    );
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+        manager_.post(request, QJsonDocument::fromVariant(QVariant(rootMap)).toJson());
+    }
+    connect(&manager_, SIGNAL(finished(QNetworkReply*)), this, SLOT(onEndpointsReply(QNetworkReply*)));
 }
 
 void CRESTClient::requestEndpoints(QString characterID)

@@ -17,12 +17,11 @@ ApplicationWindow {
     WebEngineView {
         id: loginPage
         anchors.fill: parent
-        anchors.bottomMargin: 300
         url: "https://login.eveonline.com/oauth/authorize/"
               + "?response_type=token"
               + "&redirect_uri=" + redirectUri
               + "&client_id=" + clientId
-              + "&scope=characterContactsRead"
+              + "&scope=characterContactsRead characterContactsWrite"
     }
 
     OAuth2ReplyServer {

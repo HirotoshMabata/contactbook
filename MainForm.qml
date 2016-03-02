@@ -98,17 +98,7 @@ Rectangle {
 
     function switchView(characterID) {
         if (characterID === "SHARE") {
-            // clear "SHARE" contact
-            contactDatabase[0]["contacts"] = []
-            // collect shared contacts
-            for (var i = 1; i < contactDatabase.length; i++) {
-                var contacts = contactDatabase[i]["contacts"]
-                for (var j = 0; j < contacts.length; j++) {
-                    if (contacts[j]["share"]) {
-                        contactDatabase[0]["contacts"].push(contacts[j])
-                    }
-                }
-            }
+            refreshSharedContacts()
             currentDatabaseIndex = 0
         } else {
             var tableIndex = findIndexOf(contactDatabase, function(element) {
@@ -133,6 +123,28 @@ Rectangle {
                             "portrait": contacts[i]["portrait"],
                             "share": contacts[i]["share"]
                         })
+        }
+    }
+
+    function refreshSharedContacts() {
+        // clear "SHARE" contact
+        contactDatabase[0]["contacts"] = []
+        // collect shared contacts
+        for (var i = 1; i < contactDatabase.length; i++) {
+            var contacts = contactDatabase[i]["contacts"]
+            for (var j = 0; j < contacts.length; j++) {
+                if (contacts[j]["share"]) {
+                    contactDatabase[0]["contacts"].push(contacts[j])
+                }
+            }
+        }
+    }
+
+    function uploadContacts() {
+        refreshSharedContacts()
+        for (var i = 1; i < characters.length; i++) {
+            var client = characters[i]["client"]
+            client.uploadContacts(contactDatabase[0]["contacts"])
         }
     }
 
@@ -201,10 +213,18 @@ Rectangle {
 
         Button {
             width: 48
-            height: 80
+            height: 50
             id: loginButton
             text: qsTr("Login")
             onClicked: loginWindowComponent.createObject(applicationRoot)
+        }
+
+        Button {
+            id: uploadButton
+            width: 48
+            height: 26
+            text: qsTr("Upload")
+            onClicked: uploadContacts()
         }
     }
 
