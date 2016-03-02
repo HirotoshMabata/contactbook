@@ -75,6 +75,10 @@ void CRESTClient::onContactListReply(QNetworkReply *reply)
 
     QVariantList list;
     for (auto it = contacts.begin(); it != contacts.end(); it++) {
+        if ((*it).toObject()["contactType"] != "Character") {
+            continue;
+        }
+
         QVariantMap map;
         map.insert("name", (*it).toObject()["character"].toObject()["name"].toString());
         map.insert("portrait", (*it).toObject()["character"].toObject()["portrait"].toObject()["256x256"].toObject()["href"].toString());
