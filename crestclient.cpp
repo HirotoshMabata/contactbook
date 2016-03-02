@@ -78,6 +78,7 @@ void CRESTClient::onContactListReply(QNetworkReply *reply)
         QVariantMap map;
         map.insert("name", (*it).toObject()["character"].toObject()["name"].toString());
         map.insert("portrait", (*it).toObject()["character"].toObject()["portrait"].toObject()["256x256"].toObject()["href"].toString());
+        map.insert("share", false);
         list.append(map);
     }
     if (characterID_ == "") {

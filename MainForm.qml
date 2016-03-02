@@ -12,6 +12,7 @@ Rectangle {
     // ListMode does not support Component for element's property. sync characters and characterList by index.
     property var characters: [{"name": "SHARE", "characterID": "SHARE", "portrait": "", "client": ""}]
     property var pendingClient
+    property int currentDatabaseIndex: 0
 
     property var contactDatabase: [{"characterID": "SHARE", "contacts": []}]
 
@@ -86,22 +87,40 @@ Rectangle {
                             "characterID": characterID,
                             "contacts": contacts
                         })
+            currentDatabaseIndex = contactDatabase.length - 1
         } else {
             // refresh existing table
             contactDatabase[tableIndex]["contacts"] = contacts
+            currentDatabaseIndex = tableIndex
         }
         syncContactList(contacts)
     }
 
     function switchView(characterID) {
-        var tableIndex = findIndexOf(contactDatabase, function(element) {
-            return element["characterID"] === characterID
-        })
-        if (tableIndex < 0) {
-            return
+        if (characterID === "SHARE") {
+            // clear "SHARE" contact
+            contactDatabase[0]["contacts"] = []
+            // collect shared contacts
+            for (var i = 1; i < contactDatabase.length; i++) {
+                var contacts = contactDatabase[i]["contacts"]
+                for (var j = 0; j < contacts.length; j++) {
+                    if (contacts[j]["share"]) {
+                        contactDatabase[0]["contacts"].push(contacts[j])
+                    }
+                }
+            }
+            currentDatabaseIndex = 0
+        } else {
+            var tableIndex = findIndexOf(contactDatabase, function(element) {
+                return element["characterID"] === characterID
+            })
+            if (tableIndex < 0) {
+                return
+            }
+            currentDatabaseIndex = tableIndex
         }
 
-        syncContactList(contactDatabase[tableIndex]["contacts"])
+        syncContactList(contactDatabase[currentDatabaseIndex]["contacts"])
     }
 
     // sync contact list UI
@@ -111,7 +130,8 @@ Rectangle {
             contactList.append(
                         {
                             "name": contacts[i]["name"],
-                            "portrait": contacts[i]["portrait"]
+                            "portrait": contacts[i]["portrait"],
+                            "share": contacts[i]["share"]
                         })
         }
     }
@@ -213,6 +233,9 @@ Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
                     checked: styleData.value
+                    onClicked: {
+                        contactDatabase[currentDatabaseIndex]["contacts"][styleData.row]["share"] = checked
+                    }
                 }
             }
         }
@@ -237,26 +260,6 @@ Rectangle {
 
         model: ListModel {
             id: contactList
-            ListElement {
-                portrait: "image/74_64_13.png"
-                name: "Aura"
-                share: false
-            }
-            ListElement {
-                portrait: "image/74_64_13.png"
-                name: "Aura"
-                share: false
-            }
-            ListElement {
-                portrait: "image/74_64_13.png"
-                name: "Aura"
-                share: false
-            }
-            ListElement {
-                portrait: "image/74_64_13.png"
-                name: "Aura"
-                share: true
-            }
         }
 
         rowDelegate: Rectangle {
