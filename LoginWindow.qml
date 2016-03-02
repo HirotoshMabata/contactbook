@@ -27,6 +27,9 @@ ApplicationWindow {
     OAuth2ReplyServer {
         id: server
         port: 6846
-        onAccessCodeReceived: root.accessCodeReceived(code)
+        onAccessCodeReceived: {
+            root.accessCodeReceived(code)
+            close()
+        }
     }
 }
