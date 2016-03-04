@@ -10,7 +10,7 @@ Rectangle {
     property Component crestClientComponent: CRESTClient {}
 
     // ListMode does not support Component for element's property. sync characters and characterList by index.
-    property var characters: [{"name": "SHARE", "characterID": "SHARE", "portrait": "", "client": ""}]
+    property var characters: [{"name": "SHARE", "characterID": "SHARE", "portrait": "", "client": "", "expireTime": 0}]
     property var pendingClient
     property int currentDatabaseIndex: 0
 
@@ -48,7 +48,8 @@ Rectangle {
                                 "name": characterName,
                                 "characterID": characterID,
                                 "portrait": "",   // fill it when portrait received
-                                "client": pendingClient
+                                "client": pendingClient,
+                                "expireTime": Date.now() + 1000 * 60 * 20 // about 20min.
                             })
             characterList.append(
                         {
@@ -59,6 +60,7 @@ Rectangle {
         } else {
             // refresh client
             characters[index]["client"] = pendingClient
+            characters[index]["expireTime"] = Date.now() + 1000 * 60 * 20 // about 20min.
         }
 
         pendingClient.requestCharacterPortrait(characterID)
@@ -105,9 +107,20 @@ Rectangle {
                 return element["characterID"] === characterID
             })
             if (tableIndex < 0) {
+                console.log("invalid tableIndex at switchView")
                 return
             }
             currentDatabaseIndex = tableIndex
+
+            // check if client is expired
+            var characterIndex = findIndexOf(characters, function(element) {
+                return element["characterID"] === characterID
+            })
+            if (characters[characterIndex]["expireTime"] - Date.now() < 0) {
+                // expired.
+                loginExpiredMessage.characterName = characters[characterIndex]["name"]
+                loginExpiredMessage.open()
+            }
         }
 
         syncContactList(contactDatabase[currentDatabaseIndex]["contacts"])
@@ -146,6 +159,14 @@ Rectangle {
             var client = characters[i]["client"]
             client.uploadContacts(contactDatabase[0]["contacts"])
         }
+    }
+
+    MessageDialog {
+        property string characterName: ""
+        id: loginExpiredMessage
+        title: "Login expired"
+        text: "Login expired. Please re-login as character: " + characterName
+        onAccepted: loginWindowComponent.createObject(applicationRoot)
     }
 
     MessageDialog {
