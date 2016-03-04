@@ -186,6 +186,7 @@ Rectangle {
         anchors.topMargin: 8
         layoutDirection: Qt.RightToLeft
         orientation: ListView.Horizontal
+        clip: true
         model: ListModel {
             id: characterList
             ListElement {
@@ -197,10 +198,10 @@ Rectangle {
         delegate: Item {
             x: 5
             width: 80
-            height: 40
+            height: 80
             Column {
-                spacing: 8
-
+                spacing: 2
+                anchors.horizontalCenter: parent.horizontalCenter
                 Image {
                     width: 64
                     height: 64
@@ -212,12 +213,19 @@ Rectangle {
                     text: name
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
-
             }
             MouseArea {
                 anchors.fill: parent
-                onClicked: switchView(characterID)
+                onClicked: {
+                    characterListView.currentIndex = index
+                    switchView(characterID)
+                }
             }
+        }
+        highlight: Rectangle {
+            height: 80
+            width: 80
+            color: "lightblue"
         }
     }
 
