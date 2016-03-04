@@ -6,6 +6,8 @@ QtObject {
     id: root
 
     property var mainWindow: ApplicationWindow {
+        width: 800
+        height: 600
         id: main
         visible: true
 
