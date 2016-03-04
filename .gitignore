@@ -14,7 +14,6 @@
 *.so.*
 *_pch.h.cpp
 *_resource.rc
-*.qm
 .#*
 *.*#
 core
@@ -68,6 +67,4 @@ Thumbs.db
 
 # Binaries
 # --------
-*.dll
-*.exe
 
